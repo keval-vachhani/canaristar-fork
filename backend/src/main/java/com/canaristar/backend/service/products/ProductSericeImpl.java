@@ -2,6 +2,7 @@ package com.canaristar.backend.service.products;
 
 import com.canaristar.backend.entity.Products;
 import com.canaristar.backend.enums.ProductCategory;
+import com.canaristar.backend.enums.ProductSubCategory;
 import com.canaristar.backend.repository.ProductsRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -14,6 +15,11 @@ public class ProductSericeImpl implements ProductService {
 
     @Autowired
     private ProductsRepository productsRepository;
+
+    @Override
+    public Products save(Products product) {
+        return productsRepository.save(product);
+    }
 
     @Override
     public Optional<Products> findById(String id) {
@@ -53,5 +59,15 @@ public class ProductSericeImpl implements ProductService {
     @Override
     public List<Products> findByProductCategoryAndActive(ProductCategory category, boolean active) {
         return productsRepository.findByProductCategoryAndActive(category, active);
+    }
+
+    @Override
+    public void deleteProduct(String productId) {
+        productsRepository.deleteById(productId);
+    }
+
+    @Override
+    public List<Products> findByProductSubCategory(ProductSubCategory category) {
+        return productsRepository.findByProductSubCategory(category);
     }
 }

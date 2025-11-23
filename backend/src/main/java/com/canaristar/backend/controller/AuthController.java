@@ -3,6 +3,7 @@ package com.canaristar.backend.controller;
 import com.canaristar.backend.entity.User;
 import com.canaristar.backend.enums.Role;
 import com.canaristar.backend.request.AuthRequest;
+import com.canaristar.backend.request.VerifyOtpRequest;
 import com.canaristar.backend.response.AuthResponse;
 import com.canaristar.backend.service.email.EmailService;
 import com.canaristar.backend.service.otp.OtpService;
@@ -19,7 +20,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 import jakarta.servlet.http.HttpServletRequest;
-import java.util.Map;
 import java.util.Optional;
 
 @RestController
@@ -63,8 +63,10 @@ public class AuthController {
     }
 
     @PostMapping("/verify-otp")
-    public ResponseEntity<?> verifyOtp(@RequestParam String otp, @RequestBody Map<String, String> request) {
-        String email = request.get("email");
+    public ResponseEntity<?> verifyOtp(@RequestBody VerifyOtpRequest request) {
+
+        String email = request.getEmail();
+        String otp = request.getOtp();
 
         String storedOtp = otpService.getOtp(email);
 

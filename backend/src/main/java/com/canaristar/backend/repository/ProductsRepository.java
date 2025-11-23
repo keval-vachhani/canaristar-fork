@@ -2,6 +2,7 @@ package com.canaristar.backend.repository;
 
 import com.canaristar.backend.entity.Products;
 import com.canaristar.backend.enums.ProductCategory;
+import com.canaristar.backend.enums.ProductSubCategory;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.stereotype.Repository;
 
@@ -18,4 +19,5 @@ public interface ProductsRepository extends MongoRepository<Products, String> {
     List<Products> findByFeatured(boolean featured);
     List<Products> findByActiveAndFeatured(boolean active, boolean featured);
     List<Products> findByProductCategoryAndActive(ProductCategory category, boolean active);
+    List<Products> findByProductSubCategory(ProductSubCategory category);
 }

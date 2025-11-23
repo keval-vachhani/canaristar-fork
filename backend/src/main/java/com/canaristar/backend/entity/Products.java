@@ -1,10 +1,15 @@
 package com.canaristar.backend.entity;
 
 import com.canaristar.backend.enums.ProductCategory;
+import com.canaristar.backend.enums.ProductSubCategory;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
 import lombok.Data;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import java.util.LinkedList;
 import java.util.List;
 
 @Document(collection = "products")
@@ -14,15 +19,30 @@ public class Products {
     @Id
     private String id;
 
+    @NotBlank
     private String productName;
+
+    @NotBlank
     private String productDescription;
+
+    @NotNull
     private ProductCategory productCategory;
 
-    private double sellingPrice;
-    private double mrpPrice;
+    @NotNull
+    private ProductSubCategory productSubCategory;
 
-    private List<String> imageUrls;
+    @Positive
+    private float sellingPrice = 0f;
 
-    private boolean active;
-    private boolean featured;
+    @Positive
+    private float mrpPrice = 0f;
+
+    @Positive
+//    in grams
+    private float weight = 0f;
+
+    private List<String> imageUrls = new LinkedList<>();
+
+    private boolean active = true;
+    private boolean featured = false;
 }

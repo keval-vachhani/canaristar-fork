@@ -8,6 +8,7 @@ import com.canaristar.backend.service.user.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -40,12 +41,29 @@ public class AdminController {
         }
 
         existingUser.setRole(Role.ADMIN);
+        userService.saveUser(existingUser);
+
+        return  new ResponseEntity<>("Admin created", HttpStatus.CREATED);
+    }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @PostMapping("/create-admin")
+    public ResponseEntity<?> createAdmin(@RequestBody String email) {
+        Optional<User> user = userService.findByEmail(email);
+
+        if (user.isEmpty()) {
+            return new ResponseEntity<>("User not found", HttpStatus.NOT_FOUND);
+        }
+
+        User existingUser = user.get();
+        existingUser.setRole(Role.ADMIN);
 
         userService.saveUser(existingUser);
 
         return  new ResponseEntity<>("Admin created", HttpStatus.CREATED);
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/all")
     public ResponseEntity<List<User>> getAllUser(){
         List<User> users = userService.findAll();
