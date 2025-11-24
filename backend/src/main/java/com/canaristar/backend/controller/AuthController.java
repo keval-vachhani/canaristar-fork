@@ -11,6 +11,8 @@ import com.canaristar.backend.service.user.UserService;
 import com.canaristar.backend.utils.jwt.JwtProvider;
 import com.canaristar.backend.utils.otp.OTPUtils;
 import jakarta.mail.MessagingException;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -87,9 +89,19 @@ public class AuthController {
     }
 
     @PostMapping("/signin")
-    public ResponseEntity<?> signin(@RequestBody AuthRequest request, HttpServletRequest httpRequest) {
+    public ResponseEntity<?> signin(@RequestBody AuthRequest request,
+                                    HttpServletRequest httpRequest,
+                                    HttpServletResponse httpResponse) {
 
-        String existingToken = httpRequest.getHeader("Authorization");
+        String existingToken = null;
+
+        if (httpRequest.getCookies() != null) {
+            for (Cookie c : httpRequest.getCookies()) {
+                if (c.getName().equals("jwt")) {
+                    existingToken = c.getValue();
+                }
+            }
+        }
 
         if (existingToken != null && jwtProvider.validateToken(existingToken)) {
             return ResponseEntity.ok(new AuthResponse(true, "Already authenticated", existingToken));
@@ -104,8 +116,24 @@ public class AuthController {
 
         String token = jwtProvider.generateToken(authentication);
 
-        User user = userService.findByEmail(request.getEmail()).get();
+        Optional<User> optionalUser = userService.findByEmail(request.getEmail());
 
-        return ResponseEntity.ok(new AuthResponse(true, user.getId(), token));
+        if(optionalUser.isEmpty()) {
+            return  ResponseEntity.badRequest().body(new AuthResponse(false, "User not found", null));
+        }
+
+        User user  = optionalUser.get();
+
+        Cookie cookie = new Cookie("jwt", token);
+        cookie.setHttpOnly(true);
+        cookie.setSecure(false);
+        cookie.setPath("/");
+        cookie.setMaxAge(24 * 60 * 60);
+        cookie.setAttribute("SameSite", "Lax");
+
+        httpResponse.addCookie(cookie);
+
+        return ResponseEntity.ok(new AuthResponse(true, user.getId(), "Cookie Set"));
     }
+
 }

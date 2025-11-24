@@ -17,36 +17,36 @@ import java.util.Set;
 public class JwtProvider {
 
     private final SecretKey key;
-    private static final long EXPIRATION_TIME = 30L * 24 * 60 * 60 * 1000;
+
+    // 1 day expiry
+    private static final long EXPIRATION_TIME = 24 * 60 * 60 * 1000;
 
     public JwtProvider(JwtConstant jwtConstant) {
         this.key = Keys.hmacShaKeyFor(jwtConstant.getSecretKey().getBytes());
     }
 
     public String generateToken(Authentication auth) {
-        Collection<? extends GrantedAuthority> authorities = auth.getAuthorities();
-        String roleString = populateAuthorities(authorities);
+
+        String authorities = populateAuthorities(auth.getAuthorities());
 
         return Jwts.builder()
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + EXPIRATION_TIME))
                 .claim("email", auth.getName())
-                .claim("authorities", roleString)
+                .claim("authorities", authorities)
                 .signWith(key)
                 .compact();
     }
 
     private String populateAuthorities(Collection<? extends GrantedAuthority> authorities) {
-        Set<String> auth = new HashSet<>();
+        Set<String> roles = new HashSet<>();
         for (GrantedAuthority authority : authorities) {
-            auth.add(authority.getAuthority());
+            roles.add(authority.getAuthority());
         }
-        return String.join(",", auth);
+        return String.join(",", roles);
     }
 
     public String getEmailFromToken(String token) {
-        token = token.startsWith("Bearer ") ? token.substring(7) : token;
-
         Claims claims = Jwts.parser()
                 .setSigningKey(key)
                 .build()
@@ -58,8 +58,6 @@ public class JwtProvider {
 
     public boolean validateToken(String token) {
         try {
-            token = token.startsWith("Bearer ") ? token.substring(7) : token;
-
             Jwts.parser()
                     .setSigningKey(key)
                     .build()
@@ -68,7 +66,7 @@ public class JwtProvider {
             return true;
         } catch (Exception e) {
             System.out.println("Invalid JWT token: " + e.getMessage());
+            return false;
         }
-        return false;
     }
 }
