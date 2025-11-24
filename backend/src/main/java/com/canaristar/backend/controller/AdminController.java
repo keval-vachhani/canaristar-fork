@@ -1,7 +1,7 @@
 package com.canaristar.backend.controller;
 
 import com.canaristar.backend.config.AdminConfig;
-import com.canaristar.backend.entity.User;
+import com.canaristar.backend.entity.user.User;
 import com.canaristar.backend.enums.Role;
 import com.canaristar.backend.request.AuthRequest;
 import com.canaristar.backend.service.user.UserService;

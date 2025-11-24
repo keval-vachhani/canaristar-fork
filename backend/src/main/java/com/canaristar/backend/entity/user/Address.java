@@ -1,4 +1,4 @@
-package com.canaristar.backend.entity;
+package com.canaristar.backend.entity.user;
 
 import lombok.Data;
 

@@ -1,6 +1,6 @@
 package com.canaristar.backend.service.otp;
 
-import com.canaristar.backend.entity.User;
+import com.canaristar.backend.entity.user.User;
 import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
