@@ -19,56 +19,51 @@ public class CartController {
         return new ResponseEntity<>(cartService.getCartById(id), HttpStatus.OK);
     }
 
-    @GetMapping("/email/{email}")
-    public ResponseEntity<?> getCartByEmail(@PathVariable String email) {
-        Cart cart = cartService.getCart(email);
+    @GetMapping("/user/{userId}")
+    public ResponseEntity<?> getCartByUserId(@PathVariable String userId) {
+        Cart cart = cartService.getCart(userId);
+
         if (cart == null) {
             cart = new Cart();
-            cart.setEmail(email);
+            cart.setUserId(userId);
             cart = cartService.saveCart(cart);
         }
+
         return new ResponseEntity<>(cart, HttpStatus.OK);
     }
 
     @PostMapping("/add")
     public ResponseEntity<?> addItem(
-            @RequestParam String email,
+            @RequestParam String userId,
             @RequestParam String productId,
             @RequestParam int quantity) {
 
-        Cart cart = cartService.addItem(email, productId, quantity);
+        Cart cart = cartService.addItem(userId, productId, quantity);
+
         return new ResponseEntity<>(cart, HttpStatus.OK);
     }
 
     @PutMapping("/update")
     public ResponseEntity<?> updateItem(
-            @RequestParam String email,
+            @RequestParam String userId,
             @RequestParam String productId,
             @RequestParam int quantity) {
 
-        Cart cart = cartService.updateItem(email, productId, quantity);
+        Cart cart = cartService.updateItem(userId, productId, quantity);
+
         if (cart == null) {
             return new ResponseEntity<>("Cart not found", HttpStatus.NOT_FOUND);
         }
+
         return new ResponseEntity<>(cart, HttpStatus.OK);
     }
 
     @DeleteMapping("/remove")
     public ResponseEntity<?> removeItem(
-            @RequestParam String email,
+            @RequestParam String userId,
             @RequestParam String productId) {
 
-        Cart cart = cartService.removeItem(email, productId);
-
-        if (cart == null) {
-            return new ResponseEntity<>("Cart not found", HttpStatus.NOT_FOUND);
-        }
-        return new ResponseEntity<>(cart, HttpStatus.OK);
-    }
-
-    @DeleteMapping("/clear/{email}")
-    public ResponseEntity<?> clearCart(@PathVariable String email) {
-        Cart cart = cartService.clearCart(email);
+        Cart cart = cartService.removeItem(userId, productId);
 
         if (cart == null) {
             return new ResponseEntity<>("Cart not found", HttpStatus.NOT_FOUND);
@@ -77,9 +72,21 @@ public class CartController {
         return new ResponseEntity<>(cart, HttpStatus.OK);
     }
 
-    @DeleteMapping("/delete/{email}")
-    public ResponseEntity<?> deleteCart(@PathVariable String email) {
-        cartService.deleteCart(email);
+    @DeleteMapping("/clear/{userId}")
+    public ResponseEntity<?> clearCart(@PathVariable String userId) {
+        Cart cart = cartService.clearCart(userId);
+
+        if (cart == null) {
+            return new ResponseEntity<>("Cart not found", HttpStatus.NOT_FOUND);
+        }
+
+        return new ResponseEntity<>(cart, HttpStatus.OK);
+    }
+
+    @DeleteMapping("/delete/{userId}")
+    public ResponseEntity<?> deleteCart(@PathVariable String userId) {
+        cartService.deleteCart(userId);
+
         return new ResponseEntity<>("Cart deleted", HttpStatus.OK);
     }
 }

@@ -13,8 +13,8 @@ public class CartServiceImpl implements CartService {
     private CartRepository cartRepository;
 
     @Override
-    public Cart getCart(String email) {
-        return cartRepository.findByEmail(email).orElse(null);
+    public Cart getCart(String userId) {
+        return cartRepository.findByUserId(userId).orElse(null);
     }
 
     @Override
@@ -28,14 +28,12 @@ public class CartServiceImpl implements CartService {
     }
 
     @Override
-    public Cart addItem(String email, String productId, int quantity) {
-
-        // Fetch existing cart or create a new one for first-time users
-        Cart cart = cartRepository.findByEmail(email).orElse(null);
+    public Cart addItem(String userId, String productId, int quantity) {
+        Cart cart = cartRepository.findByUserId(userId).orElse(null);
 
         if (cart == null) {
             cart = new Cart();
-            cart.setEmail(email);
+            cart.setUserId(userId);
             cart = cartRepository.save(cart);
         }
 
@@ -60,8 +58,8 @@ public class CartServiceImpl implements CartService {
     }
 
     @Override
-    public Cart updateItem(String email, String productId, int quantity) {
-        Cart cart = getCart(email);
+    public Cart updateItem(String userId, String productId, int quantity) {
+        Cart cart = getCart(userId);
         if (cart == null) return null;
 
         for (CartItem item : cart.getCartItems()) {
@@ -75,8 +73,8 @@ public class CartServiceImpl implements CartService {
     }
 
     @Override
-    public Cart removeItem(String email, String productId) {
-        Cart cart = getCart(email);
+    public Cart removeItem(String userId, String productId) {
+        Cart cart = getCart(userId);
         if (cart == null) return null;
 
         CartItem target = null;
@@ -95,20 +93,16 @@ public class CartServiceImpl implements CartService {
     }
 
     @Override
-    public Cart clearCart(String email) {
-        Cart cart = getCart(email);
-
+    public Cart clearCart(String userId) {
+        Cart cart = getCart(userId);
         if (cart == null) return null;
-
         cart.getCartItems().clear();
-
         return saveCart(cart);
     }
 
     @Override
-    public void deleteCart(String email) {
-        Cart cart = getCart(email);
-
+    public void deleteCart(String userId) {
+        Cart cart = getCart(userId);
         if (cart != null) {
             cartRepository.deleteById(cart.getId());
         }
