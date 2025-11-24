@@ -3,7 +3,7 @@ import React from "react";
 
 const SearchBar = () => {
   return (
-    <div className="bg-amber-950 text-white rounded-lg flex justify-center items-center">
+    <div className="bg-amber-800/50 text-white rounded-lg flex justify-center items-center">
       <input
         type="text"
         placeholder="Search Products..."
