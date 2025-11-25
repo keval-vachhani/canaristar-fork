@@ -15,6 +15,7 @@ import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -23,6 +24,9 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class AuthServiceImpl implements AuthService {
+
+    @Value("${app.env}")
+    private String appEnv;
 
     @Autowired
     private UserService userService;
@@ -84,8 +88,9 @@ public class AuthServiceImpl implements AuthService {
     @Override
     public AuthResponse signin(AuthRequest request, HttpServletRequest httpRequest, HttpServletResponse httpResponse) {
 
-        String existingToken = null;
+        System.out.println(appEnv);
 
+        String existingToken = null;
         if (httpRequest.getCookies() != null) {
             for (Cookie c : httpRequest.getCookies()) {
                 if (c.getName().equals("jwt")) {
@@ -95,7 +100,7 @@ public class AuthServiceImpl implements AuthService {
         }
 
         if (existingToken != null && jwtProvider.validateToken(existingToken)) {
-            return new AuthResponse(true, "Already authenticated", existingToken);
+            return new AuthResponse(true, "Already authenticated", null);
         }
 
         Authentication authentication = authenticationManager.authenticate(
@@ -114,10 +119,15 @@ public class AuthServiceImpl implements AuthService {
 
         Cookie cookie = new Cookie("jwt", token);
         cookie.setHttpOnly(true);
-        cookie.setSecure(false);
         cookie.setPath("/");
         cookie.setMaxAge(24 * 60 * 60);
-        cookie.setAttribute("SameSite", "Lax");
+        cookie.setAttribute("SameSite", "None");
+
+        if (appEnv.equals("dev")) {
+            cookie.setSecure(false);
+        } else {
+            cookie.setSecure(true);
+        }
 
         httpResponse.addCookie(cookie);
 
