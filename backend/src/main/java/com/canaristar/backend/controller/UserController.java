@@ -1,6 +1,6 @@
 package com.canaristar.backend.controller;
 
-import com.canaristar.backend.entity.User;
+import com.canaristar.backend.entity.user.User;
 import com.canaristar.backend.request.AuthRequest;
 import com.canaristar.backend.response.AuthResponse;
 import com.canaristar.backend.service.email.EmailService;
@@ -8,13 +8,15 @@ import com.canaristar.backend.service.otp.OtpService;
 import com.canaristar.backend.service.user.UserService;
 import com.canaristar.backend.utils.otp.OTPUtils;
 import jakarta.mail.MessagingException;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
+import java.util.ArrayList;
 import java.util.Optional;
 
 @RestController
@@ -124,5 +126,20 @@ public class UserController {
         otpService.removeTempPassword(email);
 
         return ResponseEntity.ok("Password updated");
+    }
+
+    @PostMapping("/logout")
+    public ResponseEntity<?> logout(HttpServletResponse response) {
+        Cookie cookie = new Cookie("jwt", null);
+
+        cookie.setHttpOnly(true);
+        cookie.setSecure(false);
+        cookie.setPath("/");
+        cookie.setMaxAge(0);
+        cookie.setAttribute("SameSite", "Lax");
+
+        response.addCookie(cookie);
+
+        return ResponseEntity.ok().body("Logout Successful");
     }
 }

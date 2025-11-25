@@ -1,6 +1,6 @@
 package com.canaristar.backend.service.user;
 
-import com.canaristar.backend.entity.User;
+import com.canaristar.backend.entity.user.User;
 import com.canaristar.backend.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;

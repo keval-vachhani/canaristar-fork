@@ -1,4 +1,4 @@
-package com.canaristar.backend.entity;
+package com.canaristar.backend.entity.user;
 
 import com.canaristar.backend.enums.Role;
 import com.fasterxml.jackson.annotation.JsonProperty;

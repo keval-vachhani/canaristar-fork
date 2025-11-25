@@ -1,6 +1,6 @@
 package com.canaristar.backend.service.user;
 
-import com.canaristar.backend.entity.User;
+import com.canaristar.backend.entity.user.User;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -15,4 +15,5 @@ public interface UserService {
     Optional<User> findByMobile(String mobile);
     User saveUser(User user);
     void deleteUser(User user);
+    List<User> findPaginated(int i, int size);
 }

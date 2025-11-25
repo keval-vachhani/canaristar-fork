@@ -1,7 +1,7 @@
 package com.canaristar.backend.controller;
 
 import com.canaristar.backend.config.AdminConfig;
-import com.canaristar.backend.entity.User;
+import com.canaristar.backend.entity.user.User;
 import com.canaristar.backend.enums.Role;
 import com.canaristar.backend.request.AuthRequest;
 import com.canaristar.backend.service.user.UserService;
@@ -61,6 +61,25 @@ public class AdminController {
         userService.saveUser(existingUser);
 
         return  new ResponseEntity<>("Admin created", HttpStatus.CREATED);
+    }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @GetMapping("/users")
+    public ResponseEntity<?> getUsers(
+            @RequestParam(defaultValue = "1") int page,
+            @RequestParam(defaultValue = "20") int size
+    ) {
+        if(page < 1 || size < 1) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+
+        List<User> users = userService.findPaginated(page - 1, size);
+
+        if (users.isEmpty()) {
+            return new ResponseEntity<>("No users found", HttpStatus.NOT_FOUND);
+        }
+
+        return new ResponseEntity<>(users, HttpStatus.OK);
     }
 
     @PreAuthorize("hasRole('ADMIN')")
