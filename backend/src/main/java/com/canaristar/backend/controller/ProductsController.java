@@ -157,4 +157,17 @@ public class ProductsController {
 
         return new ResponseEntity<>(products, HttpStatus.OK);
     }
+
+    @GetMapping("/search")
+    public ResponseEntity<?> getProductsBySearchTerm(@RequestParam String searchTerm) {
+        try {
+            List<Products> products = productService.findByProductNameContainingIgnoreCase(searchTerm);
+
+            return ResponseEntity.ok(products);
+
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error : " + e.getMessage());
+        }
+    }
+
 }

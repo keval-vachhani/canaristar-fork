@@ -20,4 +20,5 @@ public interface ProductsRepository extends MongoRepository<Products, String> {
     List<Products> findByActiveAndFeatured(boolean active, boolean featured);
     List<Products> findByProductCategoryAndActive(ProductCategory category, boolean active);
     List<Products> findByProductSubCategory(ProductSubCategory category);
+    List<Products> findByProductNameContainingIgnoreCase(String search);
 }

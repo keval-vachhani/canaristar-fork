@@ -18,5 +18,6 @@ public class User {
     private String password;
     private String mobile;
     private Address address;
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private Role role = Role.USER;
 }

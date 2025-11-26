@@ -19,4 +19,5 @@ public interface ProductService {
     List<Products> findByProductCategoryAndActive(ProductCategory category, boolean active);
     void deleteProduct(String productId);
     List<Products> findByProductSubCategory(ProductSubCategory category);
+    List<Products> findByProductNameContainingIgnoreCase(String searchTerm);
 }

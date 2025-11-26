@@ -1,4 +1,4 @@
-package com.canaristar.backend.controller;
+package com.canaristar.backend.controller.admin;
 
 import com.canaristar.backend.config.AdminConfig;
 import com.canaristar.backend.entity.user.User;

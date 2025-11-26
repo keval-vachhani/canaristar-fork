@@ -1,4 +1,4 @@
-package com.canaristar.backend.controller;
+package com.canaristar.backend.controller.admin;
 
 import com.canaristar.backend.entity.Products;
 import com.canaristar.backend.service.cloudinary.CloudinaryService;
@@ -11,6 +11,8 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 @RestController
@@ -26,21 +28,17 @@ public class AdminProductController {
     @PreAuthorize("hasRole('ADMIN')")
     @PostMapping
     public ResponseEntity<?> createProduct(@Valid @RequestBody Products product) {
-
         if (product == null) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Product is null");
         }
 
         Products saved = productService.save(product);
-
         return ResponseEntity.status(HttpStatus.CREATED).body(saved);
     }
-
 
     @PreAuthorize("hasRole('ADMIN')")
     @PutMapping
     public ResponseEntity<?> updateProduct(@RequestBody Products product) {
-
         Optional<Products> existing = productService.findById(product.getId());
 
         if (existing.isEmpty()) {
@@ -48,20 +46,16 @@ public class AdminProductController {
         }
 
         Products old = existing.get();
-
         product.setId(old.getId());
         product.setImageUrls(old.getImageUrls());
 
         productService.save(product);
-
         return ResponseEntity.ok(product);
     }
-
 
     @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/{productId}")
     public ResponseEntity<?> deleteProduct(@PathVariable String productId) {
-
         if (productId == null) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Product id must not be null");
         }
@@ -74,20 +68,18 @@ public class AdminProductController {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Product not found");
     }
 
-
     @PreAuthorize("hasRole('ADMIN')")
     @PostMapping("/{productId}/upload-image")
     public ResponseEntity<?> uploadImage(
             @PathVariable String productId,
-            @RequestParam("file") MultipartFile file
-    ) {
+            @RequestParam("file") MultipartFile file) {
+
         try {
             if (file.isEmpty()) {
                 return ResponseEntity.badRequest().body("File is empty");
             }
 
             String uploadedUrl = cloudinaryService.uploadProductImage(file);
-
             Optional<Products> optProduct = productService.findById(productId);
 
             if (optProduct.isEmpty()) {
@@ -95,8 +87,40 @@ public class AdminProductController {
             }
 
             Products product = optProduct.get();
-
             product.getImageUrls().add(uploadedUrl);
+
+            productService.save(product);
+            return ResponseEntity.ok(product);
+
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().body("Upload failed: " + e.getMessage());
+        }
+    }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @PostMapping("/{productId}/upload-multiple")
+    public ResponseEntity<?> uploadMultipleImages(
+            @PathVariable String productId,
+            @RequestParam("files") MultipartFile[] files) {
+
+        try {
+            Optional<Products> optProduct = productService.findById(productId);
+
+            if (optProduct.isEmpty()) {
+                return ResponseEntity.badRequest().body("Product not found");
+            }
+
+            Products product = optProduct.get();
+            List<String> newUrls = new ArrayList<>();
+
+            for (MultipartFile file : files) {
+                if (!file.isEmpty()) {
+                    String url = cloudinaryService.uploadProductImage(file);
+                    newUrls.add(url);
+                }
+            }
+
+            product.getImageUrls().addAll(newUrls);
             productService.save(product);
 
             return ResponseEntity.ok(product);
@@ -106,13 +130,12 @@ public class AdminProductController {
         }
     }
 
-
     @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/{productId}/delete-image")
     public ResponseEntity<?> deleteProductImage(
             @PathVariable String productId,
-            @RequestBody String imageUrl
-    ) {
+            @RequestBody String imageUrl) {
+
         try {
             imageUrl = imageUrl.replace("\"", "");
 
