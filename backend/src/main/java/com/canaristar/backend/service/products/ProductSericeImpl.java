@@ -70,4 +70,9 @@ public class ProductSericeImpl implements ProductService {
     public List<Products> findByProductSubCategory(ProductSubCategory category) {
         return productsRepository.findByProductSubCategory(category);
     }
+
+    @Override
+    public List<Products> findByProductNameContainingIgnoreCase(String searchTerm) {
+        return productsRepository.findByProductNameContainingIgnoreCase(searchTerm);
+    }
 }
