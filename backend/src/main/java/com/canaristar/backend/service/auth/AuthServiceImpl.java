@@ -130,7 +130,6 @@ public class AuthServiceImpl implements AuthService {
         }
 
         httpResponse.addCookie(cookie);
-
         return new AuthResponse(true, user.getId(), null);
     }
 
