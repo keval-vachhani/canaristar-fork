@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
 
@@ -26,13 +27,24 @@ public class AdminProductController {
     private CloudinaryService cloudinaryService;
 
     @PreAuthorize("hasRole('ADMIN')")
-    @PostMapping
-    public ResponseEntity<?> createProduct(@Valid @RequestBody Products product) {
-        if (product == null) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Product is null");
+    @PostMapping(consumes = {"multipart/form-data"})
+    public ResponseEntity<?> createProduct(
+            @Valid @RequestPart("product") Products product,
+            @RequestPart(value = "files", required = false) MultipartFile[] files
+    ) throws Exception {
+        List<String> urls = new LinkedList<>();
+
+        if (files != null) {
+            for (MultipartFile file : files) {
+                if (!file.isEmpty()) {
+                    urls.add(cloudinaryService.uploadProductImage(file));
+                }
+            }
         }
 
+        product.setImageUrls(urls);
         Products saved = productService.save(product);
+
         return ResponseEntity.status(HttpStatus.CREATED).body(saved);
     }
 

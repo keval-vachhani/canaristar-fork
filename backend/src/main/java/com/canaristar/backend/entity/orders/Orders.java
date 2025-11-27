@@ -3,7 +3,6 @@ package com.canaristar.backend.entity.orders;
 import com.canaristar.backend.entity.cart.CartItem;
 import com.canaristar.backend.enums.OrdersType;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
 import org.springframework.data.annotation.Id;
@@ -25,15 +24,16 @@ public class Orders {
     @Size(min = 1)
     private List<CartItem> cartItems;
 
-    private OrdersType ordersType = null;
+    private OrdersType ordersType = OrdersType.STARTED;
 
-    @Positive
-    private Long totalPrice;
+    private float totalPrice;
+    private float discountPrice;
 
-    @Positive
-    private Long discountPrice;
+    private String razorpayOrderId;
+    private String razorpayPaymentId;
+    private String razorpaySignature;
 
-    private String remarks = null;
+    private String remarks;
 
     private LocalDateTime createdAt = LocalDateTime.now();
     private LocalDateTime updatedAt = LocalDateTime.now();

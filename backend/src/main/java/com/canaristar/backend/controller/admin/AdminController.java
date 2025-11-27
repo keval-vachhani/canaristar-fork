@@ -11,8 +11,11 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/admin")
@@ -61,6 +64,22 @@ public class AdminController {
         userService.saveUser(existingUser);
 
         return  new ResponseEntity<>("Admin created", HttpStatus.CREATED);
+    }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @GetMapping("/search-users")
+    public ResponseEntity<?> searchUsers(@RequestParam String token) {
+        List<User> all = userService.findAll();
+
+        if(all.isEmpty()) {
+            return new ResponseEntity<>("No users", HttpStatus.NOT_FOUND);
+        }
+
+        List<User> list = all.stream()
+                .filter(user -> user.getName().contains(token))
+                .toList();
+
+        return new ResponseEntity<>(list, HttpStatus.OK);
     }
 
     @PreAuthorize("hasRole('ADMIN')")
