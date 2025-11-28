@@ -3,8 +3,6 @@ import axios from "axios";
 
 const BACKEND_URL = import.meta.env.VITE_BASE_URL;
 
-const token = localStorage.getItem("token") || null;
-
 const adminSlice = createSlice({
   name: "admin",
   initialState: {
@@ -12,8 +10,6 @@ const adminSlice = createSlice({
     error: null,
     message: null,
     users: [],
-    isAdminAuthenticated: !!token,
-    token,
   },
   reducers: {
     makeAdminRequest(state) {
@@ -96,7 +92,6 @@ export const createAdmin = (email) => async (dispatch) => {
       withCredentials: true,
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
       },
     })
     .then((res) => {
@@ -111,6 +106,31 @@ export const createAdmin = (email) => async (dispatch) => {
     });
 };
 
+export const getUsers =
+  (page = 1, size = 20) =>
+  async (dispatch) => {
+    dispatch(adminSlice.actions.getAllUsersRequest());
+
+    await axios
+      .get(`${BACKEND_URL}/api/admin/users`, {
+        params: { page, size },
+        withCredentials: true,
+        headers: {
+          "Content-Type": "application/json",
+        },
+      })
+      .then((res) => {
+        dispatch(adminSlice.actions.getAllUsersSuccess(res.data));
+      })
+      .catch((error) => {
+        dispatch(
+          adminSlice.actions.getAllUsersFailed(
+            error.response?.data?.message || error.message
+          )
+        );
+      });
+  };
+
 export const getAllUsers = () => async (dispatch) => {
   dispatch(adminSlice.actions.getAllUsersRequest());
   await axios
@@ -118,7 +138,6 @@ export const getAllUsers = () => async (dispatch) => {
       withCredentials: true,
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
       },
     })
     .then((res) => {

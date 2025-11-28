@@ -1,5 +1,3 @@
-import React from "react";
-
 const images = [
   "/images/infinite-slider/image1.png",
   "/images/infinite-slider/image2.png",

@@ -1,27 +1,36 @@
-import React from "react";
-import { useParams } from "react-router-dom";
-import { useEffect } from "react";
+import { Edit2, Trash } from "lucide-react";
+import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import { useNavigate, useParams } from "react-router-dom";
+import { toast } from "react-toastify";
+import UpdateProductModal from "../components/UpdateProductModal";
 import {
-  getAllProducts,
+  deleteProduct,
+  updateProduct,
+} from "../store/slices/adminProductSlice";
+import {
   getProductById,
   resetProductsSlice,
 } from "../store/slices/productsSlice";
-import { toast } from "react-toastify";
-import ProductCard from "../components/ProductCard";
-import { Link } from "react-router-dom";
+import { getUserById } from "../store/slices/userSlice";
 
 const ProductDetails = () => {
   const { id } = useParams();
   const dispatch = useDispatch();
+  const navigate = useNavigate();
 
   const { product, loading, error, message } = useSelector(
     (state) => state.products
   );
+  const { userId, isAuthenticated } = useSelector((state) => state.auth);
+  const { user } = useSelector((state) => state.user);
+
+  useEffect(() => {
+    dispatch(getUserById(userId));
+  }, []);
 
   useEffect(() => {
     dispatch(getProductById(id));
-    console.log(product);
   }, []);
 
   useEffect(() => {
@@ -35,8 +44,30 @@ const ProductDetails = () => {
     }
   }, [dispatch, message, error]);
 
+  const [selectedProduct, setSelectedProduct] = useState(null);
+  const [popupOpen, setPopupOpen] = useState(false);
+
+  const handleUpdateProduct = () => {
+    setSelectedProduct(product);
+    setPopupOpen(true);
+  };
+
+  const handleUpdateSubmit = (updatedProduct) => {
+    dispatch(updateProduct(updatedProduct));
+  };
+
+  const handleProductDelete = () => {
+    const conf = window.confirm(
+      `Are you sure you want to delete: ${product?.productName} ❓`
+    );
+    if (conf) {
+      dispatch(deleteProduct(id));
+      navigate("/menu");
+    }
+  };
+
   return (
-    <div className="p-6 bg-white rounded-xl shadow-md max-w-4xl min-h-screen mx-auto">
+    <div className="pt-16 p-6 bg-white rounded-xl shadow-md max-w-4xl min-h-screen mx-auto">
       {/* Product Title */}
       <h3 className="text-2xl font-bold mb-4 text-gray-800">
         {product?.productName}
@@ -59,7 +90,7 @@ const ProductDetails = () => {
           <div className="flex gap-3 mt-4 overflow-x-auto">
             {product?.imageUrls?.map((url, ind) => (
               <img
-                src={url}
+                src={url || "/images/logo.jpg"}
                 key={ind}
                 className="w-20 h-20 object-cover rounded-lg border border-gray-300"
               />
@@ -114,6 +145,34 @@ const ProductDetails = () => {
           </p>
         </div>
       </div>
+
+      {isAuthenticated && user?.role === "ADMIN" && (
+        <>
+          <div className="w-full mt-5 p-4 bg-red-500/10 rounded-xl flex items-center gap-4">
+            <button
+              onClick={handleUpdateProduct}
+              className="flex items-center gap-2 rounded-lg py-2 px-4 text-white bg-blue-600 hover:bg-blue-700 transition-all"
+            >
+              <Edit2 className="w-4 h-4" />
+              Edit Product
+            </button>
+
+            <button
+              onClick={handleProductDelete}
+              className="flex items-center gap-2 rounded-lg py-2 px-4 text-white bg-red-600 hover:bg-red-700 transition-all"
+            >
+              <Trash className="w-4 h-4" />
+              Delete Product
+            </button>
+          </div>
+          <UpdateProductModal
+            isOpen={popupOpen}
+            onClose={() => setPopupOpen(false)}
+            product={selectedProduct}
+            onUpdate={handleUpdateSubmit}
+          />
+        </>
+      )}
     </div>
   );
 };

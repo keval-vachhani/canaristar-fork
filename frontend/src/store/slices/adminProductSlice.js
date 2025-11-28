@@ -2,7 +2,6 @@ import { createSlice } from "@reduxjs/toolkit";
 import axios from "axios";
 
 const BACKEND_URL = import.meta.env.VITE_BASE_URL;
-const token = localStorage.getItem("token") || null;
 
 const adminProductSlice = createSlice({
   name: "adminProduct",
@@ -98,14 +97,14 @@ export const resetAdminProductSlice = () => (dispatch) => {
   dispatch(adminProductSlice.actions.resetAdminProductSlice());
 };
 
-export const createProduct = (productData) => async (dispatch) => {
+export const createProduct = (formData) => async (dispatch) => {
   dispatch(adminProductSlice.actions.createProductRequest());
+
   await axios
-    .post(`${BACKEND_URL}/api/products`, productData, {
+    .post(`${BACKEND_URL}/api/products`, formData, {
       withCredentials: true,
       headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
+        "Content-Type": "multipart/form-data",
       },
     })
     .then((res) => {
@@ -127,7 +126,6 @@ export const updateProduct = (productData) => async (dispatch) => {
       withCredentials: true,
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
       },
     })
     .then((res) => {
@@ -149,7 +147,6 @@ export const deleteProduct = (id) => async (dispatch) => {
       withCredentials: true,
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
       },
     })
     .then((res) => {
@@ -165,25 +162,28 @@ export const deleteProduct = (id) => async (dispatch) => {
 };
 
 export const uploadProductImage = (id, formData) => async (dispatch) => {
-  dispatch(adminProductSlice.actions.uploadImageRequest());
-  await axios
-    .post(`${BACKEND_URL}/api/products/${id}/upload-image`, formData, {
-      withCredentials: true,
-      headers: {
-        "Content-Type": "multipart/form-data",
-        Authorization: `Bearer ${token}`,
-      },
-    })
-    .then((res) => {
-      dispatch(adminProductSlice.actions.uploadImageSuccess(res.data));
-    })
-    .catch((error) => {
-      dispatch(
-        adminProductSlice.actions.uploadImageFailed(
-          error.response?.data?.message || error.message
-        )
-      );
-    });
+  try {
+    dispatch(adminProductSlice.actions.uploadImageRequest());
+
+    const res = await axios.post(
+      `${BACKEND_URL}/api/products/${id}/upload-image`,
+      formData,
+      {
+        withCredentials: true,
+        headers: { "Content-Type": "multipart/form-data" },
+      }
+    );
+
+    dispatch(adminProductSlice.actions.uploadImageSuccess(res.data));
+    return { payload: res.data }; // return uploaded URL
+  } catch (error) {
+    dispatch(
+      adminProductSlice.actions.uploadImageFailed(
+        error.response?.data?.message || error.message
+      )
+    );
+    return { error: true };
+  }
 };
 
 export const deleteProductImage = (id, imageUrl) => async (dispatch) => {
@@ -193,9 +193,9 @@ export const deleteProductImage = (id, imageUrl) => async (dispatch) => {
       withCredentials: true,
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
       },
-      data: { imageUrl },
+      // data: imageUrl,
+      data: JSON.stringify(imageUrl),
     })
     .then((res) => {
       dispatch(adminProductSlice.actions.deleteImageSuccess(res.data));

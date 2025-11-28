@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Link, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
-import { signup, resetAuthSlice } from "../store/slices/authSlice";
+import { resetAuthSlice, signup } from "../store/slices/authSlice";
 
 import { Eye, EyeOff, Lock, LogIn, Mail, Smartphone, User } from "lucide-react";
 

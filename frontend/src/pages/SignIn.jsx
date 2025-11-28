@@ -1,17 +1,9 @@
-import React, { useEffect, useState } from "react";
-import { Link, Navigate, NavLink, useNavigate } from "react-router-dom";
-import { toast } from "react-toastify";
-import {
-  Mail,
-  Lock,
-  Eye,
-  EyeOff,
-  LogIn,
-  UtensilsCrossed,
-  Loader2,
-} from "lucide-react";
+import { Eye, EyeOff, Loader2, Lock, LogIn, Mail } from "lucide-react";
+import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { signin, resetAuthSlice } from "../store/slices/authSlice";
+import { NavLink, useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
+import { resetAuthSlice, signin } from "../store/slices/authSlice";
 
 const InputField = ({
   Icon,

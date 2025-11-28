@@ -1,18 +1,12 @@
 import { useEffect, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { toast } from "react-toastify";
+import { useDispatch } from "react-redux";
 import {
-  createProduct,
-  resetAdminProductSlice,
+  deleteProductImage,
+  uploadProductImage,
 } from "../store/slices/adminProductSlice";
 
-const CreateProduct = () => {
+const UpdateProductModal = ({ isOpen, onClose, product, onUpdate }) => {
   const dispatch = useDispatch();
-  const [preview, setPreview] = useState([]);
-
-  const { loading, error, message } = useSelector(
-    (state) => state.adminProduct
-  );
 
   const [form, setForm] = useState({
     productName: "",
@@ -27,92 +21,101 @@ const CreateProduct = () => {
     imageUrls: [],
   });
 
+  const [preview, setPreview] = useState([]);
+
   useEffect(() => {
-    if (message) {
-      toast.success(message);
-      dispatch(resetAdminProductSlice());
+    if (product) {
+      setForm({
+        productName: product.productName,
+        productDescription: product.productDescription,
+        productCategory: product.productCategory,
+        productSubCategory: product.productSubCategory,
+        sellingPrice: product.sellingPrice,
+        mrpPrice: product.mrpPrice,
+        weight: product.weight,
+        active: product.active,
+        featured: product.featured,
+        imageUrls: product.imageUrls || [],
+      });
+
+      setPreview(product?.imageUrls || []);
     }
-    if (error) {
-      toast.error(error);
-      dispatch(resetAdminProductSlice());
-    }
-  }, [dispatch, message, error]);
+  }, [product]);
+
+  if (!isOpen) return null;
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
-  const handleImage = (e) => {
+  const handleImage = async (e) => {
     const files = Array.from(e.target.files);
+    if (files.length === 0) return;
 
-    const previews = files.map((file) => URL.createObjectURL(file));
-    setPreview((prev) => [...prev, ...previews]);
+    const localPreviews = files.map((file) => URL.createObjectURL(file));
+    setPreview((prev) => [...prev, ...localPreviews]);
+
+    let uploadedUrls = [];
+
+    for (let file of files) {
+      const formData = new FormData();
+      formData.append("file", file);
+
+      const result = await dispatch(uploadProductImage(product.id, formData));
+
+      if (result?.payload?.imageUrls) {
+        const latestUrl = result.payload.imageUrls.at(-1);
+        uploadedUrls.push(latestUrl);
+      }
+    }
 
     setForm((prev) => ({
       ...prev,
-      imageUrls: [...prev.imageUrls, ...files],
+      imageUrls: [...prev.imageUrls, ...uploadedUrls],
     }));
+  };
+
+  const handleDeleteImage = async (url) => {
+    console.log(url);
+    dispatch(deleteProductImage(product.id, url));
+
+    setForm((prev) => ({
+      ...prev,
+      imageUrls: prev.imageUrls.filter((img) => img !== url),
+    }));
+
+    setPreview((prev) => prev.filter((img) => img !== url));
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
 
-    const formData = new FormData();
+    if (form.productCategory === "") {
+      alert("Please select Product Category ⚠");
+      return;
+    }
+    if (form.productSubCategory === "") {
+      alert("Please select Product Sub-Category ⚠");
+      return;
+    }
 
-    // Build product JSON
-    const productJson = {
-      productName: form.productName,
-      productDescription: form.productDescription,
-      productCategory: form.productCategory,
-      productSubCategory: form.productSubCategory,
+    const updatedProduct = {
+      ...product,
+      ...form,
       sellingPrice: Number(form.sellingPrice),
       mrpPrice: Number(form.mrpPrice),
       weight: Number(form.weight),
-      active: form.active,
-      featured: form.featured,
-      imageUrls: [],
     };
 
-    // Convert JSON → Blob
-    const productBlob = new Blob([JSON.stringify(productJson)], {
-      type: "application/json",
-    });
-
-    formData.append("product", productBlob, "product.json");
-
-    // Images
-    form.imageUrls.forEach((file) => {
-      formData.append("files", file);
-    });
-
-    // Debug
-    for (let [key, value] of formData.entries()) {
-      console.log(key, value);
-    }
-
-    dispatch(createProduct(formData));
-  };
-
-  const resetFormData = () => {
-    setForm({
-      productName: "",
-      productDescription: "",
-      productCategory: "",
-      productSubCategory: "",
-      sellingPrice: "",
-      mrpPrice: "",
-      weight: "",
-      active: false,
-      featured: false,
-      imageUrls: [],
-    });
+    onUpdate(updatedProduct);
+    onClose();
   };
 
   return (
-    <div className="min-h-screen bg-gray-100 flex justify-center px-4 py-10">
-      <div className="w-full max-w-4xl bg-white shadow-md rounded-xl p-8">
-        <h2 className="text-2xl font-semibold text-amber-800 mb-6 text-center">
-          Create New Product
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 backdrop-blur-[3px]">
+      <div className="bg-white max-h-[90vh] overflow-y-auto rounded-xl shadow-xl p-6 w-full max-w-2xl">
+        <h2 className="text-2xl font-semibold text-amber-800 mb-5 text-center">
+          Update Product
         </h2>
 
         <form
@@ -128,8 +131,7 @@ const CreateProduct = () => {
               value={form.productName}
               onChange={handleChange}
               required
-              placeholder="Enter product name"
-              className="w-full mt-1 px-4 py-2 border rounded-md focus:ring-2 focus:ring-amber-500 outline-none"
+              className="w-full mt-1 px-4 py-2 border rounded-md"
             />
           </div>
 
@@ -144,7 +146,6 @@ const CreateProduct = () => {
               value={form.sellingPrice}
               onChange={handleChange}
               required
-              placeholder="Enter selling price"
               className="w-full mt-1 px-4 py-2 border rounded-md"
             />
           </div>
@@ -158,7 +159,6 @@ const CreateProduct = () => {
               value={form.mrpPrice}
               onChange={handleChange}
               required
-              placeholder="Enter MRP"
               className="w-full mt-1 px-4 py-2 border rounded-md"
             />
           </div>
@@ -172,7 +172,6 @@ const CreateProduct = () => {
               value={form.weight}
               onChange={handleChange}
               required
-              placeholder="Enter weight (ex: 250)"
               className="w-full mt-1 px-4 py-2 border rounded-md"
             />
           </div>
@@ -237,25 +236,29 @@ const CreateProduct = () => {
           {/* Image Upload */}
           <div className="md:col-span-2">
             <label className="font-medium text-gray-700">Product Image</label>
-
             <input
               type="file"
               accept="image/*"
-              multiple
               onChange={handleImage}
               className="w-full mt-1 px-4 py-2 border rounded-md"
             />
 
-            <div className="flex gap-4 flex-wrap mt-4">
-              {preview.map((img, idx) => (
-                <img
-                  key={idx}
-                  src={img}
-                  alt={`Preview ${idx}`}
-                  className="w-32 h-32 object-cover rounded-md shadow"
-                />
+            {preview.length > 0 &&
+              preview.map((url, ind) => (
+                <div key={ind} className="relative w-40">
+                  <img
+                    src={url}
+                    className="mt-4 w-40 h-40 object-cover rounded-md shadow"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => handleDeleteImage(url)}
+                    className="absolute top-2 right-2 bg-red-600 text-white px-2 py-1 text-xs rounded"
+                  >
+                    Delete
+                  </button>
+                </div>
               ))}
-            </div>
           </div>
 
           {/* Description */}
@@ -267,18 +270,25 @@ const CreateProduct = () => {
               onChange={handleChange}
               required
               rows="4"
-              placeholder="Write product description..."
-              className="w-full mt-1 px-4 py-2 border rounded-md focus:ring-amber-500"
-            ></textarea>
+              className="w-full mt-1 px-4 py-2 border rounded-md"
+            />
           </div>
 
-          {/* Submit */}
-          <div className="md:col-span-2 flex justify-center">
+          {/* Buttons */}
+          <div className="md:col-span-2 flex justify-end gap-4 mt-4">
+            <button
+              type="button"
+              onClick={onClose}
+              className="px-6 py-2 bg-gray-300 rounded-md hover:bg-gray-400"
+            >
+              Cancel
+            </button>
+
             <button
               type="submit"
-              className="bg-amber-800 text-white px-8 py-3 rounded-md font-semibold hover:bg-amber-700 transition"
+              className="px-6 py-2 bg-amber-800 text-white rounded-md hover:bg-amber-700"
             >
-              {loading ? "Creating product..." : "Create Product"}
+              Update Product
             </button>
           </div>
         </form>
@@ -287,4 +297,4 @@ const CreateProduct = () => {
   );
 };
 
-export default CreateProduct;
+export default UpdateProductModal;

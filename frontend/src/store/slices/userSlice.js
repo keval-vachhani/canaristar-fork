@@ -131,6 +131,7 @@ export const getUserIdByEmail = (email) => async (dispatch) => {
   await axios
     .get(`${BACKEND_URL}/api/user/get-id?email=${email}`, {
       withCredentials: true,
+      headers: { "Content-Type": "application/json" },
     })
     .then((res) => {
       dispatch(userSlice.actions.getUserIdSuccess(res.data));
@@ -211,6 +212,7 @@ export const verifyPassword = (email, otp) => async (dispatch) => {
     )
     .then((res) => {
       dispatch(userSlice.actions.verifyPasswordSuccess(res.data));
+      console.log("verified");
     })
     .catch((error) => {
       dispatch(

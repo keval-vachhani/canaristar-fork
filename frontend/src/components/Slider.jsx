@@ -1,5 +1,5 @@
 import { ChevronLeftIcon, ChevronRightIcon } from "lucide-react";
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 
 const images = [
@@ -21,13 +21,12 @@ const Slider = () => {
     setIndex(index === images.length - 1 ? 0 : index + 1);
   };
 
-  // ✅ Auto-scroll every 2.5 seconds
   useEffect(() => {
     const interval = setInterval(() => {
       setIndex((prev) => (prev + 1) % images.length);
-    }, 2500); // change every 2.5 seconds
+    }, 2500);
 
-    return () => clearInterval(interval); // cleanup
+    return () => clearInterval(interval);
   }, []);
 
   return (

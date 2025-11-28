@@ -1,17 +1,18 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { Navigate, useParams } from "react-router-dom";
-import {
-  verifyOtp,
-  resetAuthSlice,
-  resendOtp,
-} from "../store/slices/authSlice";
+import { useNavigate, useParams } from "react-router-dom";
 import { toast } from "react-toastify";
+import {
+  resendOtp,
+  resetAuthSlice,
+  verifyOtp,
+} from "../store/slices/authSlice";
 
 const OTP = () => {
   const { email } = useParams();
   const [otp, setOtp] = useState("");
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   const [timer, setTimer] = useState(20);
 
   const { loading, error, message, isAuthenticated } = useSelector(
@@ -30,6 +31,7 @@ const OTP = () => {
   const handleOtpVerification = (e) => {
     e.preventDefault();
     dispatch(verifyOtp(email, otp));
+    navigate("/signin");
   };
 
   const handleResendOtp = () => {

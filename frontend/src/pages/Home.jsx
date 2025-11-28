@@ -1,7 +1,7 @@
-import InfiniteSlider from "../components/InfiniteSlider";
-import Slider from "../components/Slider";
 import { ShoppingCart } from "lucide-react"; // example icon
 import { useState } from "react";
+import InfiniteSlider from "../components/InfiniteSlider";
+import Slider from "../components/Slider";
 
 const products = [
   {

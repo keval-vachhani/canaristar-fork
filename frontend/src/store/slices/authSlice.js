@@ -10,7 +10,7 @@ const authSlice = createSlice({
     error: null,
     message: null,
     user: null,
-    // user: JSON.parse(localStorage.getItem("user")) || null,
+    userId: JSON.parse(localStorage.getItem("userId")) || null,
     isAuthenticated: localStorage.getItem("isAuthenticated") === "true",
   },
   reducers: {
@@ -68,15 +68,22 @@ const authSlice = createSlice({
     signinSuccess(state, action) {
       state.loading = false;
       state.message = action.payload.message;
-      state.user = action.payload.user || null;
+      state.user = action.payload.token || null;
       state.isAuthenticated = true;
 
       localStorage.setItem("isAuthenticated", "true");
-      // localStorage.setItem("user", JSON.stringify(action.payload.user));
+      localStorage.setItem("userId", JSON.stringify(action.payload.token));
     },
     signinFailed(state, action) {
       state.loading = false;
       state.error = action.payload;
+    },
+
+    signoutSuccess(state) {
+      state.user = null;
+      state.isAuthenticated = false;
+      localStorage.removeItem("isAuthenticated");
+      localStorage.removeItem("userId");
     },
 
     resetAuthSlice(state) {
@@ -169,6 +176,19 @@ export const signin = (credentials) => async (dispatch) => {
         )
       );
     });
+};
+
+export const signout = () => async (dispatch) => {
+  try {
+    await axios.post(
+      `${BACKEND_URL}/auth/signout`,
+      {},
+      { withCredentials: true }
+    );
+    dispatch(authSlice.actions.signoutSuccess());
+  } catch (error) {
+    console.error("Logout failed", error);
+  }
 };
 
 export default authSlice.reducer;
