@@ -1,8 +1,10 @@
 package com.canaristar.backend.entity.orders;
 
 import com.canaristar.backend.entity.cart.CartItem;
+import com.canaristar.backend.entity.user.Address;
 import com.canaristar.backend.enums.OrdersType;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
 import org.springframework.data.annotation.Id;
@@ -20,6 +22,9 @@ public class Orders {
 
     @NotBlank
     private String userId;
+
+    @NotNull
+    private Address address;
 
     @Size(min = 1)
     private List<CartItem> cartItems;

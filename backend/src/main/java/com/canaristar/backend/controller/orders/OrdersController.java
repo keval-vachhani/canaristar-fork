@@ -1,4 +1,4 @@
-package com.canaristar.backend.controller;
+package com.canaristar.backend.controller.orders;
 
 import com.canaristar.backend.entity.orders.Orders;
 import com.canaristar.backend.enums.OrdersType;
@@ -38,15 +38,9 @@ public class OrdersController {
         savedOrder.setRazorpayOrderId(razorpayOrderId);
         savedOrder.setOrdersType(OrdersType.PROCESSING);
 
-        Orders updatedOrder = ordersService.updateOrder(savedOrder.getId(), savedOrder);
-
-        if(updatedOrder == null) {
-            return ResponseEntity.badRequest().body("Failed to update order");
-        }
-
         return ResponseEntity.ok(Map.of(
                 "message", "Order created and Razorpay order initialized",
-                "order", updatedOrder,
+                "order", savedOrder,
                 "razorpayOrderId", razorpayOrderId
         ));
     }
@@ -56,9 +50,9 @@ public class OrdersController {
     public ResponseEntity<?> verifyPayment(@PathVariable String id,
                                            @RequestBody Map<String, String> body) throws Exception {
 
-        Orders orders = ordersService.findOrderById(id);
+        Orders order = ordersService.findOrderById(id);
 
-        if (orders == null) {
+        if (order == null) {
             return ResponseEntity.badRequest().body("Order not found");
         }
 
@@ -75,32 +69,32 @@ public class OrdersController {
         }
 
         boolean valid = razorpayPaymentService.verifyPayment(
-                orders.getRazorpayOrderId(),
+                order.getRazorpayOrderId(),
                 paymentId,
                 signature
         );
 
         if (valid) {
 
-            orders.setRazorpayPaymentId(paymentId);
-            orders.setRazorpaySignature(signature);
-            orders.setOrdersType(OrdersType.COMPLETED);
+            order.setRazorpayPaymentId(paymentId);
+            order.setRazorpaySignature(signature);
+            order.setOrdersType(OrdersType.COMPLETED);
 
-            ordersService.updateOrder(id, orders);
+            ordersService.updateOrder(id, order);
 
             return ResponseEntity.ok(Map.of(
                     "message", "Payment verified successfully",
-                    "order", orders
+                    "order", order
             ));
 
         } else {
 
-            orders.setOrdersType(OrdersType.CANCELED);
-            ordersService.updateOrder(id, orders);
+            order.setOrdersType(OrdersType.CANCELED);
+            ordersService.updateOrder(id, order);
 
             return ResponseEntity.status(400).body(Map.of(
                     "message", "Payment verification failed",
-                    "order", orders
+                    "order", order
             ));
         }
     }

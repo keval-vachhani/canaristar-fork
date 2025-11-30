@@ -1,4 +1,4 @@
-package com.canaristar.backend.controller;
+package com.canaristar.backend.controller.orders;
 
 import com.canaristar.backend.entity.orders.Orders;
 import com.canaristar.backend.entity.orders.UserOrders;

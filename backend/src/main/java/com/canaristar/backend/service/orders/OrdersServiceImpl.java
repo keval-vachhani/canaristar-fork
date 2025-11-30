@@ -3,6 +3,7 @@ package com.canaristar.backend.service.orders;
 import com.canaristar.backend.entity.orders.Orders;
 import com.canaristar.backend.enums.OrdersType;
 import com.canaristar.backend.repository.OrdersRepository;
+import com.canaristar.backend.service.userOrders.UserOrdersService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -15,10 +16,19 @@ public class OrdersServiceImpl implements OrdersService {
     @Autowired
     private OrdersRepository ordersRepository;
 
+    @Autowired
+    private UserOrdersService userOrdersService;
+
+
     @Override
     public Orders createOrder(Orders orders) {
-        return ordersRepository.save(orders);
+        Orders saved = ordersRepository.save(orders);
+
+        userOrdersService.addOrderToUser(orders.getUserId(), saved);
+
+        return saved;
     }
+
 
     @Override
     public Orders updateOrder(String id, Orders req) {
@@ -32,7 +42,11 @@ public class OrdersServiceImpl implements OrdersService {
         old.setOrdersType(req.getOrdersType());
         old.setUpdatedAt(LocalDateTime.now());
 
-        return ordersRepository.save(old);
+        Orders updated = ordersRepository.save(old);
+
+        userOrdersService.updateUserOrder(old.getUserId(), updated);
+
+        return updated;
     }
 
     @Override

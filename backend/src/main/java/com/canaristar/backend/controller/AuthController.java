@@ -9,6 +9,7 @@ import jakarta.mail.MessagingException;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -21,7 +22,7 @@ public class AuthController {
     private AuthService authService;
 
     @PostMapping("/signup")
-    public ResponseEntity<AuthResponse> signup(@RequestBody User user) throws MessagingException {
+    public ResponseEntity<AuthResponse> signup(@Valid @RequestBody User user) throws MessagingException {
         return ResponseEntity.ok(authService.signup(user));
     }
 
@@ -56,6 +57,4 @@ public class AuthController {
     public ResponseEntity<AuthResponse> resendOtp(@RequestBody String email) throws MessagingException {
         return ResponseEntity.ok(authService.resendOtp(email));
     }
-
-
 }

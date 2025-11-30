@@ -14,7 +14,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/contact-us")
+@RequestMapping("/api/admin/contact-us")
 public class AdminContacUsController {
 
     @Autowired

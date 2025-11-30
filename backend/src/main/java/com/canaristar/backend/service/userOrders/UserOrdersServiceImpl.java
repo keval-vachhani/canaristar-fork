@@ -25,6 +25,7 @@ public class UserOrdersServiceImpl implements UserOrdersService {
     @Override
     public Orders findOrderById(String userId, String orderId) {
         UserOrders orders = findByUserId(userId);
+
         if (orders == null) {
             return null;
         }
@@ -48,5 +49,22 @@ public class UserOrdersServiceImpl implements UserOrdersService {
         userOrders.getOrders().add(order);
 
         return userOrdersRepository.save(userOrders);
+    }
+
+    @Override
+    public void updateUserOrder(String userId, Orders updatedOrder) {
+
+        UserOrders userOrders = userOrdersRepository.findByUserId(userId).orElse(null);
+
+        if (userOrders == null) return;
+
+        userOrders.setOrders(
+                userOrders.getOrders()
+                        .stream()
+                        .map(o -> o.getId().equals(updatedOrder.getId()) ? updatedOrder : o)
+                        .toList()
+        );
+
+        userOrdersRepository.save(userOrders);
     }
 }

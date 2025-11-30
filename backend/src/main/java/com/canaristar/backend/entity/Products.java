@@ -2,9 +2,7 @@ package com.canaristar.backend.entity;
 
 import com.canaristar.backend.enums.ProductCategory;
 import com.canaristar.backend.enums.ProductSubCategory;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Positive;
+import jakarta.validation.constraints.*;
 import lombok.Data;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
