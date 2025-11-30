@@ -14,7 +14,10 @@ public class BackendApplication {
 
 	public static void main(String[] args) {
 
-        Dotenv dotenv = Dotenv.load();
+        Dotenv dotenv = Dotenv
+                .configure()
+                .ignoreIfMissing()
+                .load();
 
         for (DotenvEntry entry : dotenv.entries()) {
             String key = entry.getKey();
