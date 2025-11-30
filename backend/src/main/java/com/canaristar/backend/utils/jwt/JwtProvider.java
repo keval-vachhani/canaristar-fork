@@ -66,6 +66,7 @@ public class JwtProvider {
             return true;
         } catch (Exception e) {
             System.out.println("Invalid JWT token: " + e.getMessage());
+
             return false;
         }
     }
