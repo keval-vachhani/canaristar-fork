@@ -49,7 +49,7 @@ public class ContactUsController {
 
     @PostMapping(consumes = {"multipart/form-data"})
     public ResponseEntity<?> save(
-            @Valid @ModelAttribute ("contactUs") ContactUs contactUs,
+            @Valid @ModelAttribute("contactUs") ContactUs contactUs,
             @RequestPart(value = "files", required = false) MultipartFile[] files
     ) {
         try {
@@ -57,7 +57,7 @@ public class ContactUsController {
 
             if (files != null) {
                 for (MultipartFile file : files) {
-                    String url = cloudinaryService.uploadContactUsImage(file);
+                    String url = cloudinaryService.uploadImage("contact-us", file);
                     imageUrls.add(url);
                 }
             }

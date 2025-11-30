@@ -37,7 +37,7 @@ public class AdminProductController {
         if (files != null) {
             for (MultipartFile file : files) {
                 if (!file.isEmpty()) {
-                    urls.add(cloudinaryService.uploadProductImage(file));
+                    urls.add(cloudinaryService.uploadImage("product", file));
                 }
             }
         }
@@ -91,7 +91,7 @@ public class AdminProductController {
                 return ResponseEntity.badRequest().body("File is empty");
             }
 
-            String uploadedUrl = cloudinaryService.uploadProductImage(file);
+            String uploadedUrl = cloudinaryService.uploadImage("product", file);
             Optional<Products> optProduct = productService.findById(productId);
 
             if (optProduct.isEmpty()) {
@@ -127,7 +127,7 @@ public class AdminProductController {
 
             for (MultipartFile file : files) {
                 if (!file.isEmpty()) {
-                    String url = cloudinaryService.uploadProductImage(file);
+                    String url = cloudinaryService.uploadImage("product", file);
                     newUrls.add(url);
                 }
             }
