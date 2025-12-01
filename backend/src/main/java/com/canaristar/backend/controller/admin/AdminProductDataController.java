@@ -14,38 +14,19 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/admin/product-data")
+@PreAuthorize("hasRole('ADMIN')")
 public class AdminProductDataController {
 
     @Autowired
     private ProductDataService productDataService;
 
-    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/all")
     public ResponseEntity<List<ProductData>> getAllAnalytics() {
         return ResponseEntity.ok(productDataService.getAll());
     }
 
-    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/product")
     public ResponseEntity<ProductData> getAnalyticsByProduct(@RequestParam String productId) {
         return ResponseEntity.ok(productDataService.getByProductId(productId));
-    }
-
-    @PreAuthorize("hasRole('ADMIN')")
-    @GetMapping("/top-viewed")
-    public ResponseEntity<List<ProductData>> getTopViewedProducts() {
-        return ResponseEntity.ok(productDataService.getTopViewed());
-    }
-
-    @PreAuthorize("hasRole('ADMIN')")
-    @GetMapping("/top-ordered")
-    public ResponseEntity<List<ProductData>> getTopOrderedProducts() {
-        return ResponseEntity.ok(productDataService.getTopOrdered());
-    }
-
-    @PreAuthorize("hasRole('ADMIN')")
-    @GetMapping("/top-rated")
-    public ResponseEntity<List<ProductData>> getTopRatedProducts() {
-        return ResponseEntity.ok(productDataService.getTopRated());
     }
 }

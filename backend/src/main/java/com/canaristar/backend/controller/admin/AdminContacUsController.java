@@ -15,12 +15,12 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/admin/contact-us")
+@PreAuthorize("hasRole('ADMIN')")
 public class AdminContacUsController {
 
     @Autowired
     private ContactUsService contactUsService;
 
-    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/all")
     public ResponseEntity<?> findAll() {
         List<ContactUs> list = contactUsService.findAll();
@@ -32,7 +32,6 @@ public class AdminContacUsController {
         return new ResponseEntity<>(list, HttpStatus.OK);
     }
 
-    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/all/status")
     public ResponseEntity<?> findAllByStatus(@RequestParam ContactUsStatus status) {
         List<ContactUs> list = contactUsService.findAllByStatus(status);
@@ -44,7 +43,6 @@ public class AdminContacUsController {
         return new ResponseEntity<>(list, HttpStatus.OK);
     }
 
-    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/all/between")
     public ResponseEntity<?> findAllBetween(
             @RequestParam String start,
@@ -62,7 +60,6 @@ public class AdminContacUsController {
         return new ResponseEntity<>(list, HttpStatus.OK);
     }
 
-    @PreAuthorize("hasRole('ADMIN')")
     @PutMapping("/response/{id}")
     public ResponseEntity<?> adminResponseUpdate(
             @PathVariable String id,

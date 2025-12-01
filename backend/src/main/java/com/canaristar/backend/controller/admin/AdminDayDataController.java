@@ -11,12 +11,12 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/admin/day-data")
+@PreAuthorize("hasRole('ADMIN')")
 public class AdminDayDataController {
 
     @Autowired
     private DayDataService dayDataService;
 
-    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/all")
     public ResponseEntity<?> getAllDayData(){
         List<DayData> list = dayDataService.findAll();
@@ -28,7 +28,6 @@ public class AdminDayDataController {
         return ResponseEntity.ok(list);
     }
 
-    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/today")
     public ResponseEntity<DayData> getTodayData() {
         DayData data = dayDataService.getTodayData();
@@ -36,7 +35,6 @@ public class AdminDayDataController {
         return ResponseEntity.ok(data);
     }
 
-    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/{date}")
     public ResponseEntity<DayData> getDataByDate(@PathVariable String date) {
         DayData data = dayDataService.getDataByDate(date);
@@ -44,7 +42,6 @@ public class AdminDayDataController {
         return ResponseEntity.ok(data);
     }
 
-    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/range")
     public ResponseEntity<?> getRange(
             @RequestParam String startDate,
@@ -53,7 +50,6 @@ public class AdminDayDataController {
         return ResponseEntity.ok(dayDataService.getDataBetween(startDate, endDate));
     }
 
-    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping("/reset-today")
     public ResponseEntity<?> resetToday() {
         dayDataService.resetToday();

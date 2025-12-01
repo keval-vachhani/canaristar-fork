@@ -18,6 +18,7 @@ import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/admin/products")
+@PreAuthorize("hasRole('ADMIN')")
 public class AdminProductController {
 
     @Autowired
@@ -26,7 +27,6 @@ public class AdminProductController {
     @Autowired
     private CloudinaryService cloudinaryService;
 
-    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping(consumes = {"multipart/form-data"})
     public ResponseEntity<?> createProduct(
             @Valid @ModelAttribute ("product") Products product,
@@ -48,7 +48,6 @@ public class AdminProductController {
         return ResponseEntity.status(HttpStatus.CREATED).body(saved);
     }
 
-    @PreAuthorize("hasRole('ADMIN')")
     @PutMapping
     public ResponseEntity<?> updateProduct(@RequestBody Products product) {
         Optional<Products> existing = productService.findById(product.getId());
@@ -65,7 +64,6 @@ public class AdminProductController {
         return ResponseEntity.ok(product);
     }
 
-    @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/{productId}")
     public ResponseEntity<?> deleteProduct(@PathVariable String productId) {
         if (productId == null) {
@@ -80,7 +78,6 @@ public class AdminProductController {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Product not found");
     }
 
-    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping("/{productId}/upload-image")
     public ResponseEntity<?> uploadImage(
             @PathVariable String productId,
@@ -109,7 +106,6 @@ public class AdminProductController {
         }
     }
 
-    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping("/{productId}/upload-multiple")
     public ResponseEntity<?> uploadMultipleImages(
             @PathVariable String productId,
@@ -142,7 +138,6 @@ public class AdminProductController {
         }
     }
 
-    @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/{productId}/delete-image")
     public ResponseEntity<?> deleteProductImage(
             @PathVariable String productId,

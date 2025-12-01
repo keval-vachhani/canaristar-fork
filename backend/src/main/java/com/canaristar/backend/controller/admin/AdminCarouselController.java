@@ -15,18 +15,17 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/admin/carousel")
+@PreAuthorize("hasRole('ADMIN')")
 public class AdminCarouselController {
 
     @Autowired
     private CarouselService carouselService;
 
-    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping
     public List<Carousel> getAllCarousels() {
         return carouselService.findAll();
     }
 
-    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/featured")
     public ResponseEntity<?> getFeaturedCarousels() {
         List<Carousel> carousels = carouselService.findByFeatured(true);
@@ -38,7 +37,6 @@ public class AdminCarouselController {
         return new ResponseEntity<>(carousels, HttpStatus.OK);
     }
 
-    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/all/between")
     public ResponseEntity<?> getCarouselsByCreatedAtBetween(
             @RequestParam String start,
@@ -56,7 +54,6 @@ public class AdminCarouselController {
         return new ResponseEntity<>(list, HttpStatus.OK);
     }
 
-    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/search")
     public ResponseEntity<?> getCarouselsByName(@RequestParam String token){
         List<Carousel> list = carouselService.findByTitle(token);
@@ -68,7 +65,6 @@ public class AdminCarouselController {
         return new ResponseEntity<>(list, HttpStatus.OK);
     }
 
-    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping(consumes = {"multipart/form-data"})
     public ResponseEntity<?> saveCarousel(
             @Valid @ModelAttribute("carousel") Carousel carousel,
@@ -92,7 +88,6 @@ public class AdminCarouselController {
         return ResponseEntity.ok(carousel);
     }
 
-    @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/{id}")
     public ResponseEntity<?> deleteCarousel(@PathVariable String id) {
         String res = carouselService.deleteById(id);

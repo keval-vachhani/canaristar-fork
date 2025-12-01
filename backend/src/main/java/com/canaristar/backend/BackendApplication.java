@@ -36,5 +36,4 @@ public class BackendApplication {
     public void init() {
         TimeZone.setDefault(TimeZone.getTimeZone("Asia/Kolkata"));
     }
-
 }

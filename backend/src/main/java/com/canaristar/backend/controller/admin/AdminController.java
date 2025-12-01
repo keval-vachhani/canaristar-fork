@@ -16,6 +16,7 @@ import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/admin")
+@PreAuthorize("hasRole('ADMIN')")
 public class AdminController {
 
     @Autowired
@@ -24,6 +25,7 @@ public class AdminController {
     @Autowired
     private AdminConfig adminConfig;
 
+    @PreAuthorize("isAuthenticated()")
     @PostMapping("/make-admin")
     public ResponseEntity<?> makeAdmin(@RequestBody AuthRequest authRequest) {
         Optional<User> user = userService.findByEmail(authRequest.getEmail());
@@ -46,7 +48,6 @@ public class AdminController {
         return  new ResponseEntity<>("Admin created", HttpStatus.CREATED);
     }
 
-    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping("/create-admin")
     public ResponseEntity<?> createAdmin(@RequestBody String email) {
         Optional<User> user = userService.findByEmail(email);
@@ -63,8 +64,7 @@ public class AdminController {
         return  new ResponseEntity<>("Admin created", HttpStatus.CREATED);
     }
 
-    @PreAuthorize("hasRole('ADMIN')")
-    @GetMapping("/search-users")
+    @GetMapping("/search/users")
     public ResponseEntity<?> searchUsers(@RequestParam String token) {
         List<User> all = userService.findAll();
 
@@ -79,7 +79,6 @@ public class AdminController {
         return new ResponseEntity<>(list, HttpStatus.OK);
     }
 
-    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/users")
     public ResponseEntity<?> getUsers(
             @RequestParam(defaultValue = "1") int page,
@@ -98,7 +97,6 @@ public class AdminController {
         return new ResponseEntity<>(users, HttpStatus.OK);
     }
 
-    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/all")
     public ResponseEntity<List<User>> getAllUser(){
         List<User> users = userService.findAll();
